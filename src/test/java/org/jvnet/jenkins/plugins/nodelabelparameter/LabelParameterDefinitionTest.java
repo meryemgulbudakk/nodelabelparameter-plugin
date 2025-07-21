@@ -5,18 +5,23 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import hudson.model.ParameterValue;
 import hudson.model.labels.LabelAtom;
 import hudson.slaves.DumbSlave;
 import hudson.util.FormValidation;
+import net.sf.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreOfflineNodeEligibility;
+import org.jvnet.jenkins.plugins.nodelabelparameter.node.NodeEligibility;
+import org.kohsuke.stapler.StaplerRequest2;
 
 @WithJenkins
 class LabelParameterDefinitionTest {
@@ -148,5 +153,64 @@ class LabelParameterDefinitionTest {
                         containsString("The label expression"),
                         containsString(invalidLabel),
                         containsString("is not valid")));
+    }
+
+    @Test
+    void testCreateValue_WhenLabelIsMissingAndValueKeyIsUsed() {
+        String name = "name";
+        String description = "The description";
+        String defaultValue = "The value";
+        boolean allNodesMatchingLabel = true;
+        NodeEligibility nodeEligibility = mock(NodeEligibility.class);
+        String triggerIfResult = "The triggerIfResult value";
+
+        JSONObject jo = new JSONObject();
+        jo.put("name", name);
+        jo.put("value", defaultValue);
+        jo.put("allNodesMatchingLabel", allNodesMatchingLabel);
+
+        LabelParameterDefinition labelParameterDefinition = new LabelParameterDefinition(
+                name, description, defaultValue, allNodesMatchingLabel, nodeEligibility, triggerIfResult);
+
+        LabelParameterValue labelParameterValue = new LabelParameterValue(name);
+
+        StaplerRequest2 req = mock(StaplerRequest2.class);
+        when(req.bindJSON(LabelParameterValue.class, jo)).thenReturn(labelParameterValue);
+
+        ParameterValue expectedValue = labelParameterDefinition.createValue(req, jo);
+
+        assertThat(labelParameterValue, is(expectedValue));
+        assertThat(labelParameterValue.getDescription(), is(expectedValue.getDescription()));
+        assertThat(labelParameterValue.getLabel(), is(((LabelParameterValue) expectedValue).getLabel()));
+    }
+
+    @Test
+    void testCreateValue_BindsLabelFromLabelKeyCorrectly() {
+        String name = "name";
+        String description = "The description";
+        String defaultValue = "The value";
+        boolean allNodesMatchingLabel = true;
+        NodeEligibility nodeEligibility = mock(NodeEligibility.class);
+        String triggerIfResult = "The triggerIfResult value";
+
+        JSONObject jo = new JSONObject();
+        jo.put("name", name);
+        jo.put("label", defaultValue);
+        jo.put("allNodesMatchingLabel", allNodesMatchingLabel);
+
+        LabelParameterDefinition labelParameterDefinition = new LabelParameterDefinition(
+                name, description, defaultValue, allNodesMatchingLabel, nodeEligibility, triggerIfResult);
+
+        LabelParameterValue labelParameterValue =
+                new LabelParameterValue(name, defaultValue, allNodesMatchingLabel, nodeEligibility);
+
+        StaplerRequest2 req = mock(StaplerRequest2.class);
+        when(req.bindJSON(LabelParameterValue.class, jo)).thenReturn(labelParameterValue);
+
+        ParameterValue expectedValue = labelParameterDefinition.createValue(req, jo);
+
+        assertThat(labelParameterValue, is(expectedValue));
+        assertThat(labelParameterValue.getDescription(), is(expectedValue.getDescription()));
+        assertThat(labelParameterValue.getLabel(), is(((LabelParameterValue) expectedValue).getLabel()));
     }
 }
