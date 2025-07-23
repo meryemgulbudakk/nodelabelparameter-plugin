@@ -33,6 +33,12 @@ class LabelParameterDefinitionTest {
     private static final String LABEL_NAME = "my-agent-label";
     private static final LabelAtom label = new LabelAtom(LABEL_NAME);
 
+    private static final String name = "name";
+    private static final String description = "The description";
+    private static final String defaultValue = "built-in || master";
+    private static final String triggerIfResult = "The triggerIfResult value";
+    private static final boolean allNodesMatchingLabel = true;
+
     @BeforeAll
     static void setUp(JenkinsRule rule) throws Exception {
         j = rule;
@@ -42,11 +48,6 @@ class LabelParameterDefinitionTest {
     @Test
     @Deprecated
     void testNodeParameterDefinitionDeprecated() {
-        String name = "name";
-        String description = "The description";
-        String defaultValue = "built-in || master";
-        String triggerIfResult = "The triggerIfResult value";
-
         LabelParameterDefinition nodeParameterDefinition =
                 new LabelParameterDefinition(name, description, defaultValue, true, true, triggerIfResult);
 
@@ -62,10 +63,6 @@ class LabelParameterDefinitionTest {
     @Test
     @Deprecated
     void testNodeParameterDefinitionDeprecated3Arg() {
-        String name = "name";
-        String description = "The description";
-        String defaultValue = "built-in || master";
-
         LabelParameterDefinition nodeParameterDefinition =
                 new LabelParameterDefinition(name, description, defaultValue);
 
@@ -80,11 +77,6 @@ class LabelParameterDefinitionTest {
 
     @Test
     void testNodeParameterDefinition() {
-        String name = "name";
-        String description = "The description";
-        String defaultValue = "built-in || master";
-        String triggerIfResult = "The triggerIfResult value";
-
         LabelParameterDefinition nodeParameterDefinition =
                 new LabelParameterDefinition(name, description, defaultValue, false, null, triggerIfResult);
 
@@ -157,12 +149,7 @@ class LabelParameterDefinitionTest {
 
     @Test
     void testCreateValue_WhenLabelIsMissingAndValueKeyIsUsed() {
-        String name = "name";
-        String description = "The description";
-        String defaultValue = "The value";
-        boolean allNodesMatchingLabel = true;
         NodeEligibility nodeEligibility = mock(NodeEligibility.class);
-        String triggerIfResult = "The triggerIfResult value";
 
         JSONObject jo = new JSONObject();
         jo.put("name", name);
@@ -179,19 +166,14 @@ class LabelParameterDefinitionTest {
 
         ParameterValue expectedValue = labelParameterDefinition.createValue(req, jo);
 
-        assertThat(labelParameterValue, is(expectedValue));
-        assertThat(labelParameterValue.getDescription(), is(expectedValue.getDescription()));
-        assertThat(labelParameterValue.getLabel(), is(((LabelParameterValue) expectedValue).getLabel()));
+        assertThat(expectedValue, is(labelParameterValue));
+        assertThat(expectedValue.getDescription(), is(labelParameterValue.getDescription()));
+        assertThat(((LabelParameterValue) expectedValue).getLabel(), is(labelParameterValue.getLabel()));
     }
 
     @Test
     void testCreateValue_BindsLabelFromLabelKeyCorrectly() {
-        String name = "name";
-        String description = "The description";
-        String defaultValue = "The value";
-        boolean allNodesMatchingLabel = true;
         NodeEligibility nodeEligibility = mock(NodeEligibility.class);
-        String triggerIfResult = "The triggerIfResult value";
 
         JSONObject jo = new JSONObject();
         jo.put("name", name);
@@ -209,8 +191,8 @@ class LabelParameterDefinitionTest {
 
         ParameterValue expectedValue = labelParameterDefinition.createValue(req, jo);
 
-        assertThat(labelParameterValue, is(expectedValue));
-        assertThat(labelParameterValue.getDescription(), is(expectedValue.getDescription()));
-        assertThat(labelParameterValue.getLabel(), is(((LabelParameterValue) expectedValue).getLabel()));
+        assertThat(expectedValue, is(labelParameterValue));
+        assertThat(expectedValue.getDescription(), is(labelParameterValue.getDescription()));
+        assertThat(((LabelParameterValue) expectedValue).getLabel(), is(labelParameterValue.getLabel()));
     }
 }
