@@ -1,10 +1,7 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -169,6 +166,7 @@ class LabelParameterDefinitionTest {
         assertThat(expectedValue, is(labelParameterValue));
         assertThat(expectedValue.getDescription(), is(labelParameterValue.getDescription()));
         assertThat(((LabelParameterValue) expectedValue).getLabel(), is(labelParameterValue.getLabel()));
+        assertThat(((LabelParameterValue) expectedValue).getNextLabels(), is(notNullValue()));
     }
 
     @Test
@@ -194,5 +192,6 @@ class LabelParameterDefinitionTest {
         assertThat(expectedValue, is(labelParameterValue));
         assertThat(expectedValue.getDescription(), is(labelParameterValue.getDescription()));
         assertThat(((LabelParameterValue) expectedValue).getLabel(), is(labelParameterValue.getLabel()));
+        assertThat(((LabelParameterValue) expectedValue).getNextLabels(), is(notNullValue()));
     }
 }
